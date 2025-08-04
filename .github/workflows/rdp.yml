@@ -17,36 +17,23 @@ jobs:
       - name: Enable RDP and Create User
         shell: powershell
         run: |
-          net user admin123 P@ssw0rd123 /add
-          net localgroup administrators admin123 /add
+          net user kamel123 MyStrong123 /add
+          net localgroup administrators kamel123 /add
           Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-      - name: Start ngrok and Show RDP Info
+      - name: Start ngrok and keep session alive
         shell: powershell
         run: |
-          Start-Process -FilePath ".\ngrok.exe" -ArgumentList "tcp 3389"
+          Start-Process -NoNewWindow -FilePath .\ngrok.exe -ArgumentList "tcp 3389"
           Start-Sleep -Seconds 10
-
-          $tunnel = $null
-          $tries = 0
-
-          while ($null -eq $tunnel -and $tries -lt 10) {
-            try {
-              $tunnel = Invoke-RestMethod -Uri http://127.0.0.1:4040/api/tunnels
-            } catch {
-              Start-Sleep -Seconds 2
-              $tries++
-            }
-          }
-
-          if ($tunnel -ne $null) {
-            $rdpAddress = $tunnel.tunnels[0].public_url -replace "tcp://", ""
-            Write-Host ""
-            Write-Host "Connect to your RDP:"
-            Write-Host "Address: $rdpAddress"
-            Write-Host "Username: admin123"
-            Write-Host "Password: P@ssw0rd123"
-          } else {
-            Write-Host "ngrok tunnel not found. RDP setup failed."
+          $tunnel = Invoke-RestMethod http://127.0.0.1:4040/api/tunnels
+          $address = $tunnel.tunnels[0].public_url -replace "tcp://", ""
+          Write-Host "Address: $address"
+          Write-Host "Username: kamel123"
+          Write-Host "Password: MyStrong123"
+          
+          # KEEP SESSION ALIVE
+          while ($true) {
+            Start-Sleep -Seconds 30
           }
