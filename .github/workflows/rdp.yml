@@ -1,0 +1,34 @@
+name: RDP
+
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Download and Setup ngrok
+        shell: powershell
+        run: |
+          Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
+          Expand-Archive ngrok.zip -DestinationPath .
+          .\ngrok.exe authtoken 30q4MQK68KpdnH8IPF89v9c47sE_5YmwgBAvRsG2W893LAL6C
+
+      - name: Enable RDP and create user
+        shell: powershell
+        run: |
+          net user admin123 P@ssw0rd123 /add
+          net localgroup administrators admin123 /add
+          Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+      - name: Start ngrok TCP Tunnel for RDP
+        shell: powershell
+        run: |
+          Start-Process -NoNewWindow -FilePath .\ngrok.exe -ArgumentList "tcp 3389"
+          Start-Sleep -Seconds 15
+          $ngrokInfo = Invoke-RestMethod -Uri http://127.0.0.1:4040/api/tunnels
+          $rdpAddress = $ngrokInfo.tunnels.public_url -replace "tcp://", ""
+          Write-Host "`n🖥️  Connect to your RDP via:"
+          Write-Host "➡️  Address: $rdpAddress"
+          Write-Host "👤  Username: admin123"
+          Write-Host "🔑  Password: P@ssw0rd123"
