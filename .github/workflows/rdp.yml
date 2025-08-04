@@ -25,7 +25,7 @@ jobs:
       - name: Start ngrok and Show RDP Info
         shell: powershell
         run: |
-          .\ngrok.exe tcp 3389 | Out-Null &
+          Start-Process -FilePath ".\ngrok.exe" -ArgumentList "tcp 3389"
           Start-Sleep -Seconds 10
 
           $tunnel = $null
@@ -42,10 +42,11 @@ jobs:
 
           if ($tunnel -ne $null) {
             $rdpAddress = $tunnel.tunnels[0].public_url -replace "tcp://", ""
-            Write-Host "`n🖥️  Connect to your RDP:"
-            Write-Host "➡️  Address: $rdpAddress"
-            Write-Host "👤  Username: admin123"
-            Write-Host "🔑  Password: P@ssw0rd123"
+            Write-Host ""
+            Write-Host "Connect to your RDP:"
+            Write-Host "Address: $rdpAddress"
+            Write-Host "Username: admin123"
+            Write-Host "Password: P@ssw0rd123"
           } else {
-            Write-Host "❌ ngrok tunnel not found. RDP setup failed."
+            Write-Host "ngrok tunnel not found. RDP setup failed."
           }
