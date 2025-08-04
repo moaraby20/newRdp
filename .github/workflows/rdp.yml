@@ -28,7 +28,8 @@ jobs:
           Start-Sleep -Seconds 15
           $ngrokInfo = Invoke-RestMethod -Uri http://127.0.0.1:4040/api/tunnels
           $rdpAddress = $ngrokInfo.tunnels.public_url -replace "tcp://", ""
-          Write-Host "`n🖥️  Connect to your RDP via:"
-          Write-Host "➡️  Address: $rdpAddress"
-          Write-Host "👤  Username: admin123"
-          Write-Host "🔑  Password: P@ssw0rd123"
+          Write-Host ""
+          Write-Host "Connect to your RDP:"
+          Write-Host "Address: $rdpAddress"
+          Write-Host "Username: admin123"
+          Write-Host "Password: P@ssw0rd123"
